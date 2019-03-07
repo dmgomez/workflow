@@ -1,0 +1,96 @@
+.diagramContainer 
+{
+    padding: 10px;
+    width:1500px; 
+    height: 1500px;
+    border: 1px solid gray;
+    background-image: url(../../images/grid.png);
+    background-repeat: repeat;
+    overflow: auto;
+    position: relative;
+    white-space: nowrap;
+    
+}
+.objectsContainer 
+{
+    padding: 20px;
+    width:1%; height: 200px;
+    border: 1px solid gray;
+}
+
+.item {
+    height:120px; 
+    width: 120px;
+    border: 1px solid #346789;
+    float: left;
+    position: absolute;
+    background-color: #eeeeef;
+    border-radius: 0.5em;
+    box-shadow: 2px 2px 19px #aaa;
+    text-align: center;
+    opacity: 0.8;
+    padding: 0.5em;
+    overflow: hidden;
+    margin:auto;
+    cursor:move;
+    white-space: normal;
+    word-wrap: break-word;
+}
+.arrastrable
+{
+    cursor: move;
+}
+
+.circleBase {
+    border-radius: 50%;
+    behavior: url(PIE.htc); /* remove if you don't care about IE8 */
+}
+.type2 
+{
+width: 80px;
+height: 80px;
+background: #ccc;
+text-align: center;
+line-height: 80px;
+border: 1px solid #000;
+position: absolute;
+box-shadow: 2px 2px 19px #aaa;
+}
+
+#viewPort
+{
+    border: 1px solid;  /* to show div size */
+    overflow: auto;     /* to add scrollbars for overlong texts */
+  /* width: 0px; */   /* default width */
+    max-width: 100%;   /* maximal width */
+    max-height: 450px;
+    float: left; clear: left; /* or try display: inline-block instead */
+    white-space: nowrap;   
+}
+
+.aLabel 
+{
+    background-color: white;
+    border: 1px dotted gray;
+    color: #444;
+    cursor: pointer;
+    font: 12px sans-serif;
+    opacity: 0.8;
+    padding: 0.4em;
+    z-index: 21;
+}
+.jsplumb-hover
+{
+    z-index: 15;
+}
+.clicked
+{
+    z-index: 16;
+}
+.delete
+{
+    position: absolute;
+    top: 5%;
+    left: 85%;
+    cursor: pointer;
+}

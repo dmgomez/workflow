@@ -1,0 +1,68 @@
+#page {
+    padding-top: 60px;
+}
+
+.backg {
+  background-image: url("../../../images/bglogin.jpg");
+	background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+.backglogin {
+	background-image: url("../../../images/bg.jpg");
+	background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+#footer {
+
+  position: relative;
+  margin-top: 10px; /* ponga en negativo el alto de su pie de página para nuestro    ejemplo usamos 63, usted debe remplazarlo según su diseño   */
+  height: 63px;
+  clear:both;
+  width:100%;
+
+  }
+
+.portlet-title{
+
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  background-color: #2378B0;
+  border-top-left-radius:0.4em;
+  border-top-right-radius:0.4em;
+  color: #FFF;
+  margin-top: 2em;
+  padding: 0.5em
+}
+
+.portlet-content {
+
+  border: 1px solid #2378B0;
+  border-bottom-left-radius:0.4em;
+  border-bottom-right-radius:0.4em;
+}
+
+.portlet-content > ul {
+
+  display: inline;
+}
+
+.portlet-content > ul > li {
+
+  /*text-indent: 0.3em;*/
+  border-top: 1px solid #d1d1d1;
+  padding: 0.3em;
+
+}
+div.loading {
+
+    background-color: transparent;
+    background-image: url('../../../images/preloader.GIF');
+    background-position:  center center;
+    background-repeat: no-repeat;
+    opacity: 5;
+}
+div.loading * {
+    opacity: .2;
+}

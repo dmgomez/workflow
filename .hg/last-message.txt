@@ -1,0 +1,3 @@
+- Integración de modelos de InstanciaActividad y VisInstanciaActividad
+- Modificaciones varias en las expresiones regulares de algunos modelos.
+- Modificaciones varias para corrección de errores de las pruebas.

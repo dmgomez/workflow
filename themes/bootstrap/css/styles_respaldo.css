@@ -1,0 +1,24 @@
+#page {
+    padding-top: 60px;
+}
+
+.backg {
+  background-image: url("../../../images/bglogin.jpg");
+	background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+.backglogin {
+	background-image: url("../../../images/bg.jpg");
+	background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+#footer {
+
+  position: relative;
+  margin-top: 10px; /* ponga en negativo el alto de su pie de página para nuestro    ejemplo usamos 63, usted debe remplazarlo según su diseño   */
+  height: 63px;
+  clear:both;
+  width:100%;
+
+  }

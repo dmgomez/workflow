@@ -1,0 +1,149 @@
+DROP VIEW vis_empleado;
+
+CREATE OR REPLACE VIEW vis_empleado AS
+SELECT e.id_empleado,
+    e.id_departamento,
+    e.id_cargo,
+    e.superior_inmediato,
+    e.id_persona,
+    e.id_usuario,
+    (p.nombre_persona::text || ' '::text) || p.apellido_persona::text AS nombre_persona,
+    (p.nacionalidad_persona::text || '-'::text) || p.cedula_persona::text AS cedula_persona,
+    p.correo_persona,
+    c.nombre_cargo,
+    d.nombre_departamento,
+    o.id_organizacion,
+    o.nombre_organizacion,
+    array_to_string(array_agg(r.id_rol), ', '::text) AS id_rol,
+    array_to_string(array_agg(r.nombre_rol), ', '::text) AS nombre_rol,
+    (p2.nombre_persona::text || ' '::text) || p2.apellido_persona::text AS nombre_superior,
+    p2.correo_persona AS correo_superior_inmediato,
+    ca.itemname AS rol_sistema
+   FROM cruge_authassignment ca
+     JOIN empleado e ON ca.userid = e.id_usuario
+     JOIN persona p ON e.id_persona = p.id_persona
+     LEFT JOIN empleado em ON e.superior_inmediato = em.id_empleado
+     LEFT JOIN empleado_rol er ON e.id_empleado = er.id_empleado
+     LEFT JOIN rol r ON er.id_rol = r.id_rol
+     JOIN cargo c ON e.id_cargo = c.id_cargo
+     JOIN departamento d ON e.id_departamento = d.id_departamento
+     JOIN organizacion o ON d.id_organizacion = o.id_organizacion
+     LEFT JOIN persona p2 ON em.id_persona = p2.id_persona
+  GROUP BY e.id_empleado, p.nombre_persona, p.apellido_persona, p.nacionalidad_persona, p.cedula_persona, p.correo_persona, c.nombre_cargo, d.nombre_departamento, o.id_organizacion, o.nombre_organizacion, p2.nombre_persona, p2.apellido_persona, p2.correo_persona, ca.itemname;
+
+
+
+CREATE OR REPLACE VIEW vis_proceso AS 
+ SELECT 
+    pr.id_proceso,
+    pr.codigo_proceso,
+    pr.nombre_proceso,
+    pr.descripcion_proceso,
+    a.id_actividad,
+    a.codigo_actividad,
+    a.nombre_actividad,
+    e.id_empleado,
+    e.activo AS empleado_activo,
+    p.id_persona,
+    (p.nacionalidad_persona::text || '-'::text) || p.cedula_persona::text AS cedula_empleado,
+    (p.nombre_persona::text || ' '::text) || p.apellido_persona::text AS nombre_empleado,
+    c.id_cargo,
+    c.nombre_cargo,
+    d.id_departamento,
+    d.nombre_departamento,
+    o.id_organizacion,
+    o.nombre_organizacion,
+    array_to_string(array_agg(r.id_rol), ', '::text) AS id_rol,
+    array_to_string(array_agg(r.nombre_rol), ', '::text) AS nombre_rol
+    
+   FROM proceso pr 
+     JOIN actividad a ON pr.id_proceso = a.id_proceso
+     LEFT JOIN actividad_rol ar ON a.id_actividad = ar.id_actividad
+     LEFT JOIN empleado_rol er ON ar.id_rol = er.id_rol
+     LEFT JOIN rol r ON er.id_rol = r.id_rol
+     LEFT JOIN empleado e ON er.id_empleado = e.id_empleado
+     LEFT JOIN persona p ON e.id_persona = p.id_persona
+     LEFT JOIN cargo c ON e.id_cargo = c.id_cargo
+     LEFT JOIN departamento d ON e.id_departamento = d.id_departamento
+     JOIN organizacion o ON pr.id_organizacion = o.id_organizacion
+   GROUP BY pr.id_proceso, a.id_actividad, e.id_empleado, p.id_persona, c.id_cargo, d.id_departamento, o.id_organizacion;
+
+
+
+
+
+
+
+CREATE OR REPLACE FUNCTION tiempo_retraso_actividad(tiempoejecucion integer, dias integer, horas integer, fechaini date, fechafin date, horaini time without time zone, horafin time without time zone)
+  RETURNS integer AS
+$BODY$
+
+DECLARE tiemporetraso integer;
+DECLARE tiempoestimado integer;
+
+BEGIN
+        tiempoestimado = (dias*7*60)+(horas*60);
+
+	IF tiempoejecucion < 0 THEN
+	
+		tiempoejecucion = 0;
+		
+	END IF;
+	
+	tiemporetraso = tiempoestimado - tiempoejecucion;
+					
+	IF tiemporetraso < 0 THEN
+
+		tiemporetraso = ABS(tiemporetraso);
+
+	ELSE
+		tiemporetraso = 0;
+		
+	END IF;
+					
+	RETURN tiemporetraso;
+	
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+  COST 100;
+
+CREATE OR REPLACE VIEW vis_actividad_empleado AS 
+ SELECT pr.id_proceso,
+    pr.codigo_proceso,
+    pr.nombre_proceso,
+    a.id_actividad,
+    a.codigo_actividad,
+    a.nombre_actividad,
+    a.descripcion_actividad,
+    a.dias,
+    a.horas,
+    e.id_empleado,
+    e.activo AS empleado_activo,
+    (p.nombre_persona::text || ' '::text) || p.apellido_persona::text AS nombre_empleado,
+    ip.codigo_instancia_proceso,
+    ia.id_instancia_actividad,
+    ia.fecha_ini_actividad,
+    to_char(ia.fecha_ini_actividad::timestamp with time zone, 'dd-mm-yyyy'::text) AS fecha_ini_actividad_text,
+    ia.fecha_fin_actividad,
+    to_char(ia.fecha_fin_actividad::timestamp with time zone, 'dd-mm-yyyy'::text) AS fecha_fin_actividad_text,
+    ia.hora_ini_actividad,
+    ia.hora_fin_actividad,
+    ia.id_estado_actividad,
+    (CASE WHEN (fecha_fin_actividad <> '1900-01-01') THEN tiempo_actividad(ia.fecha_ini_actividad, ia.fecha_fin_actividad, ia.hora_ini_actividad, ia.hora_fin_actividad) ELSE -1 END) AS tiempo_ejecucion,
+    ea.nombre_estado_actividad,
+    ia.ejecutada
+   FROM proceso pr
+     JOIN actividad a ON pr.id_proceso = a.id_proceso
+     JOIN actividad_rol ar ON a.id_actividad = ar.id_actividad
+     JOIN empleado_rol er ON ar.id_rol = er.id_rol
+     JOIN empleado e ON er.id_empleado = e.id_empleado
+     JOIN persona p ON e.id_persona = p.id_persona
+     LEFT JOIN instancia_actividad ia ON e.id_empleado = ia.id_empleado
+     LEFT JOIN instancia_proceso ip ON ia.id_instancia_proceso = ip.id_instancia_proceso
+     LEFT JOIN estado_actividad ea ON ia.id_estado_actividad = ea.id_estado_actividad;
+
+
+
+
+
